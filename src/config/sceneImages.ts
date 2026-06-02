@@ -1,0 +1,20 @@
+/** Rutas canónicas — archivos en public/images (una sola extensión .png) */
+export const SCENE_IMAGES = {
+  arkhamEntrada:    '/images/arkham-entrada.png',
+  arkhamFachada:    '/images/arkham-fachada.png',
+  arkhamAtrio:      '/images/arkham-atrio.png',
+  arkhamPuertas:    '/images/arkham-puertas.png',
+  arkhamIntensivo:  '/images/arkham-intensivo.png',
+  arkhamLunatico:   '/images/arkham-lunatico.png',
+  wayneTower:       '/images/wayne-tower.png',
+  wayneLobby:       '/images/wayne-lobby.png',
+  wayneSala:        '/images/wayne-sala.png',
+  wayneDespacho:    '/images/wayne-despacho.png',
+  batcomputerHub:   '/images/batcomputer-hub.png',
+  batcomputerSala:  '/images/batcomputer-sala.png',
+  balconRejas:      '/images/balcon-rejas.png',
+  cartelCrimeAlley: '/images/cartel-crime-alley.png',
+  rosasCalle:       '/images/rosas-calle.png',
+  calleAutos:       '/images/calle-autos.png',
+  frenteCrimeAlley: '/images/frente-crime-alley.png',
+} as const
