@@ -1,0 +1,1 @@
+import{j as e}from"./index-BrJ9TiDH.js";function t(){return e.jsx("div",{className:"absolute inset-0 pointer-events-none",children:e.jsx("div",{className:"absolute inset-0",style:{background:"rgba(5,5,5,0.15)"}})})}export{t as default};

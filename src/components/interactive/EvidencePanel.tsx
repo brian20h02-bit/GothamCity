@@ -10,7 +10,7 @@ interface EvidencePanelProps {
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 export default function EvidencePanel({ sceneId, title = 'EVIDENCE' }: EvidencePanelProps) {
-  const { allEvidence, isEvidenceFound, foundCount, progress } = useInvestigation()
+  const { allEvidence, isEvidenceFound, foundCount, progress, totalCount } = useInvestigation()
 
   const sceneEvidence = allEvidence.filter((e: Evidence) => e.scene === sceneId)
   const foundInScene  = sceneEvidence.filter((e: Evidence) => isEvidenceFound(e.id))
@@ -105,7 +105,7 @@ export default function EvidencePanel({ sceneId, title = 'EVIDENCE' }: EvidenceP
         {/* Global footer */}
         <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(229,229,229,0.06)' }}>
           <p className="font-body" style={{ fontSize: '7px', letterSpacing: '2px', color: 'rgba(229,229,229,0.2)' }}>
-            TOTAL {String(foundCount).padStart(2, '0')} / 18 — {progress}%
+            TOTAL {String(foundCount).padStart(2, '0')} / {String(totalCount).padStart(2, '0')} — {progress}%
           </p>
         </div>
       </div>

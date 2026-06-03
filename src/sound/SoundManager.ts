@@ -65,7 +65,6 @@ export const investigationSoundConfig: InvestigationSoundConfig[] = [
   { event: 'onClearanceUpgrade', src: '/audio/clearance-upgrade.mp3', volume: 0.7, delay: 500  },
 ]
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const triggerInvestigationSound = (_event: InvestigationSoundEvent): void => {
-  // TODO: Resolve config, load audio file, play via soundManager / Web Audio API
+  /* Sin sonidos retro en transiciones — audio manejado por ImmersionAudioEngine */
 }

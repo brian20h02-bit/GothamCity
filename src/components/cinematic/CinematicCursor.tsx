@@ -1,24 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useScene } from '@/core/navigation/SceneContext'
+import {
+  parseInteractionHint,
+  type InteractionHint,
+} from '@/core/interaction/contextualLabels'
 
 interface CursorState {
   x: number
   y: number
-  hotspot: boolean
-  label: string
+  active: boolean
+  hint: InteractionHint | null
 }
 
-/**
- * CinematicCursor — replaces the default OS cursor on the scene explorer.
- * Call `window.dispatchEvent(new CustomEvent('hotspot-enter', { detail: 'INVESTIGATE' }))` 
- * from hotspot components to trigger the expanded state.
- */
+const FADE = 0.15
+
 export default function CinematicCursor() {
+  const { transition } = useScene()
   const [cursor, setCursor] = useState<CursorState>({
     x: -100,
     y: -100,
-    hotspot: false,
-    label: '',
+    active: false,
+    hint: null,
   })
   const rafRef = useRef<number>(0)
   const rawPos = useRef({ x: -100, y: -100 })
@@ -29,14 +32,15 @@ export default function CinematicCursor() {
     }
 
     const onHotspotEnter = (e: Event) => {
-      const label = (e as CustomEvent<string>).detail ?? ''
-      setCursor(prev => ({ ...prev, hotspot: true, label }))
+      const hint = parseInteractionHint((e as CustomEvent).detail)
+      if (hint) {
+        setCursor(prev => ({ ...prev, active: true, hint }))
+      }
     }
     const onHotspotLeave = () => {
-      setCursor(prev => ({ ...prev, hotspot: false, label: '' }))
+      setCursor(prev => ({ ...prev, active: false, hint: null }))
     }
 
-    // Smooth cursor follow via RAF
     const loop = () => {
       setCursor(prev => ({
         ...prev,
@@ -59,72 +63,73 @@ export default function CinematicCursor() {
     }
   }, [])
 
+  const loading = transition.active
+  const interactive = loading || cursor.active
+  const glowColor = loading
+    ? 'rgba(229,229,229,0.2)'
+    : cursor.active
+      ? 'rgba(229,229,229,0.45)'
+      : 'rgba(229,229,229,0.25)'
+
   return (
     <>
-      {/* Hide native cursor globally */}
       <style>{`* { cursor: none !important; }`}</style>
 
-      {/* ── Outer ring ──────────────────────────────────────── */}
       <motion.div
         aria-hidden="true"
         className="fixed pointer-events-none z-[9999] rounded-full"
         style={{
-          top:  cursor.y,
+          top: cursor.y,
           left: cursor.x,
           translateX: '-50%',
           translateY: '-50%',
+          boxShadow: interactive ? `0 0 12px ${glowColor}` : 'none',
         }}
         animate={{
-          width:   cursor.hotspot ? 54 : 24,
-          height:  cursor.hotspot ? 54 : 24,
-          border:  cursor.hotspot
-            ? '1px solid rgba(229,229,229,0.55)'
-            : '1px solid rgba(229,229,229,0.35)',
-          opacity: 0.85,
+          width: interactive ? 28 : 20,
+          height: interactive ? 28 : 20,
+          border: `1px solid ${interactive ? 'rgba(229,229,229,0.5)' : 'rgba(229,229,229,0.28)'}`,
+          opacity: loading ? 0.45 : 0.9,
         }}
-        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: FADE, ease: 'easeOut' }}
       />
 
-      {/* ── Inner dot ───────────────────────────────────────── */}
       <motion.div
         aria-hidden="true"
         className="fixed pointer-events-none z-[9999] rounded-full"
         style={{
-          top:       cursor.y,
-          left:      cursor.x,
+          top: cursor.y,
+          left: cursor.x,
           translateX: '-50%',
           translateY: '-50%',
-          background: 'rgba(229,229,229,0.8)',
+          background: 'rgba(229,229,229,0.85)',
         }}
         animate={{
-          width:  cursor.hotspot ? 4 : 3,
-          height: cursor.hotspot ? 4 : 3,
+          width: interactive ? 3 : 2,
+          height: interactive ? 3 : 2,
         }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
+        transition={{ duration: FADE, ease: 'easeOut' }}
       />
 
-      {/* ── Action label ────────────────────────────────────── */}
       <AnimatePresence>
-        {cursor.hotspot && cursor.label && (
+        {loading && (
           <motion.span
-            key="cursor-label"
-            aria-hidden="true"
+            key="loading"
             className="fixed pointer-events-none z-[9999] font-body"
             style={{
-              top:        cursor.y + 36,
-              left:       cursor.x,
+              top: cursor.y + 22,
+              left: cursor.x,
               translateX: '-50%',
-              fontSize:   '8px',
+              fontSize: 7,
               letterSpacing: '3px',
-              color: 'rgba(229,229,229,0.7)',
-              whiteSpace: 'nowrap',
+              color: 'rgba(229,229,229,0.4)',
             }}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -2 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: FADE }}
           >
-            {cursor.label}
+            LOADING
           </motion.span>
         )}
       </AnimatePresence>

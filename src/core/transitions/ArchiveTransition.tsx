@@ -1,16 +1,17 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useScene } from '@/core/navigation/SceneContext'
 
-const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1]
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 /**
- * Scene transition overlay — opacity + transform only (no blur / backdrop-filter).
+ * Cinematic scene transition — fade, vignette, scanline, brief motion blur.
  */
 export default function ArchiveTransition() {
   const { transition } = useScene()
   const { active, type, phase } = transition
   const isMemory      = type === 'memory'
   const isBatcomputer = type === 'batcomputer'
+  const isArchiveLike = !isMemory && !isBatcomputer
 
   return (
     <AnimatePresence>
@@ -18,77 +19,66 @@ export default function ArchiveTransition() {
         <motion.div
           key="trans"
           className="fixed inset-0 select-none"
-          style={{ zIndex: 9000, pointerEvents: 'none', willChange: 'opacity' }}
+          style={{ zIndex: 9000, pointerEvents: 'none', willChange: 'opacity, filter' }}
           initial={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
+          animate={{
+            opacity: 1,
+            filter: phase === 'freeze' ? 'blur(2px)' : 'blur(0px)',
+          }}
+          exit={{ opacity: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.55, ease: EASE }}
         >
-          {/* Dark vignette */}
           <motion.div
             className="absolute inset-0"
             style={{
               background: isBatcomputer
-                ? 'radial-gradient(ellipse at center, rgba(0,8,4,0.5) 0%, rgba(0,0,0,0.95) 100%)'
-                : 'radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.9) 100%)',
-              willChange: 'opacity',
+                ? 'radial-gradient(ellipse at center, rgba(0,8,4,0.55) 0%, rgba(0,0,0,0.97) 100%)'
+                : 'radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.94) 100%)',
             }}
             animate={{ opacity: phase === 'freeze' ? 1 : 0 }}
-            transition={{
-              duration: phase === 'freeze' ? 0.18 : 0.22,
-              ease:     EASE_OUT,
-            }}
+            transition={{ duration: phase === 'freeze' ? 0.45 : 0.55, ease: EASE }}
           />
 
-          {/* Letter-box (archive only) */}
-          {!isMemory && !isBatcomputer && (
+          {isArchiveLike && (
             <motion.div
               aria-hidden="true"
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 16%, transparent 84%, rgba(0,0,0,0.55) 100%)',
-                willChange: 'opacity',
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 14%, transparent 86%, rgba(0,0,0,0.6) 100%)',
               }}
               animate={{ opacity: phase === 'freeze' ? 1 : 0 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              transition={{ duration: 0.4, ease: EASE }}
             />
           )}
 
-          {/* Scanline (archive) */}
-          {!isMemory && !isBatcomputer && (
+          {isArchiveLike && (
             <motion.div
               aria-hidden="true"
               className="absolute left-0 right-0"
               style={{
-                height:     '1px',
-                background: 'linear-gradient(90deg, transparent 0%, rgba(229,229,229,0.3) 50%, transparent 100%)',
-                top:        0,
-                willChange: 'transform, opacity',
+                height: '2px',
+                background: 'linear-gradient(90deg, transparent 0%, rgba(229,229,229,0.35) 50%, transparent 100%)',
+                top: 0,
               }}
-              initial={{ transform: 'translate3d(0,-2px,0)', opacity: 0.7 }}
+              initial={{ transform: 'translate3d(0,-4px,0)', opacity: 0.8 }}
               animate={{
                 transform: 'translate3d(0,100vh,0)',
-                opacity:   phase === 'freeze' ? 0.6 : 0,
+                opacity: phase === 'freeze' ? 0.7 : 0,
               }}
-              transition={{ duration: phase === 'freeze' ? 0.32 : 0.08, ease: 'linear' }}
+              transition={{ duration: phase === 'freeze' ? 0.65 : 0.2, ease: 'linear' }}
             />
           )}
 
-          {/* Batcomputer: green data flash */}
           {isBatcomputer && (
             <motion.div
               aria-hidden="true"
               className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(180deg, rgba(20,80,50,0.15) 0%, transparent 40%)',
-                willChange: 'opacity',
-              }}
-              animate={{ opacity: phase === 'freeze' ? 0.9 : 0 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              style={{ background: 'linear-gradient(180deg, rgba(20,80,50,0.2) 0%, transparent 45%)' }}
+              animate={{ opacity: phase === 'freeze' ? 0.95 : 0 }}
+              transition={{ duration: 0.35, ease: EASE }}
             />
           )}
 
-          {/* Scene swap flash */}
           <AnimatePresence>
             {phase === 'flash' && (
               <motion.div
@@ -96,11 +86,10 @@ export default function ArchiveTransition() {
                 className="absolute inset-0"
                 style={{
                   background: isBatcomputer ? '#031208' : isMemory ? '#0a0a12' : '#0a0a0a',
-                  willChange: 'opacity',
                 }}
-                initial={{ opacity: isBatcomputer ? 0.35 : 0.2 }}
+                initial={{ opacity: isBatcomputer ? 0.45 : 0.35 }}
                 animate={{ opacity: 0 }}
-                transition={{ duration: isBatcomputer ? 0.22 : 0.2, ease: [0.4, 0, 1, 1] }}
+                transition={{ duration: 0.55, ease: [0.4, 0, 1, 1] }}
               />
             )}
           </AnimatePresence>

@@ -17,10 +17,11 @@ export type SceneId =
   | 'wayne-lobby'
   | 'wayne-sala'
   | 'wayne-despacho'
+  | 'narrows-investigation'
   | 'batcomputer'
   | 'batcomputer-control'
 
-export type TransitionType = 'archive' | 'memory' | 'batcomputer' | 'none'
+export type TransitionType = 'archive' | 'memory' | 'batcomputer' | 'back' | 'none'
 
 export interface Hotspot {
   /** Unique key within scene */

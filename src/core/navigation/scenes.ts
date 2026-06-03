@@ -10,16 +10,7 @@ export const scenes: Scene[] = [
     background:  '/images/balcon-rejas.png',
     nextScene:   'crime-alley',
     prevScene:   null,
-    hotspots: [
-      {
-        id:             'enter-city',
-        area:           { top: 30, left: 35, width: 30, height: 40 },
-        label:          'ENTER CITY',
-        action:         'ENTER',
-        targetScene:    'crime-alley',
-        transitionType: 'archive',
-      },
-    ],
+    hotspots: [],
   },
   {
     id:          'crime-alley',
@@ -30,16 +21,7 @@ export const scenes: Scene[] = [
     background:  '/images/cartel-crime-alley.png',
     nextScene:   'the-incident',
     prevScene:   'gotham-city',
-    hotspots: [
-      {
-        id:             'investigate-location',
-        area:           { top: 25, left: 20, width: 60, height: 55 },
-        label:          'INVESTIGATE LOCATION',
-        action:         'INVESTIGATE',
-        targetScene:    'the-incident',
-        transitionType: 'archive',
-      },
-    ],
+    hotspots: [],
   },
   {
     id:          'the-incident',
@@ -50,16 +32,7 @@ export const scenes: Scene[] = [
     background:  '/images/rosas-calle.png',
     nextScene:   'the-archives',
     prevScene:   'crime-alley',
-    hotspots: [
-      {
-        id:             'view-archive',
-        area:           { top: 40, left: 30, width: 40, height: 40 },
-        label:          'VIEW ARCHIVE RECORD',
-        action:         'VIEW',
-        targetScene:    'the-archives',
-        transitionType: 'memory',
-      },
-    ],
+    hotspots: [],
   },
   {
     id:          'the-archives',
@@ -104,16 +77,7 @@ export const scenes: Scene[] = [
     background:  '/images/arkham-entrada.png',
     nextScene:   'arkham-fachada',
     prevScene:   'the-archives',
-    hotspots: [
-      {
-        id:             'approach-building',
-        area:           { top: 20, left: 20, width: 60, height: 60 },
-        label:          'APPROACH',
-        action:         'ENTER',
-        targetScene:    'arkham-fachada',
-        transitionType: 'archive',
-      },
-    ],
+    hotspots: [],
   },
   {
     id:          'arkham-fachada',
@@ -124,16 +88,7 @@ export const scenes: Scene[] = [
     background:  '/images/arkham-fachada.png',
     nextScene:   'arkham-atrio',
     prevScene:   'arkham-entrada',
-    hotspots: [
-      {
-        id:             'enter-building',
-        area:           { top: 20, left: 20, width: 60, height: 60 },
-        label:          'ENTER',
-        action:         'ENTER',
-        targetScene:    'arkham-atrio',
-        transitionType: 'archive',
-      },
-    ],
+    hotspots: [],
   },
   {
     id:          'arkham-atrio',
@@ -144,16 +99,7 @@ export const scenes: Scene[] = [
     background:  '/images/arkham-atrio.png',
     nextScene:   'arkham-puertas',
     prevScene:   'arkham-fachada',
-    hotspots: [
-      {
-        id:             'access-records',
-        area:           { top: 20, left: 20, width: 60, height: 60 },
-        label:          'ACCESS RECORDS',
-        action:         'INVESTIGATE',
-        targetScene:    'arkham-puertas',
-        transitionType: 'archive',
-      },
-    ],
+    hotspots: [],
   },
   {
     id:          'arkham-puertas',
@@ -198,16 +144,7 @@ export const scenes: Scene[] = [
     background:  '/images/wayne-tower.png',
     nextScene:   'wayne-lobby',
     prevScene:   'the-archives',
-    hotspots: [
-      {
-        id:             'enter-tower',
-        area:           { top: 20, left: 20, width: 60, height: 60 },
-        label:          'ENTER TOWER',
-        action:         'ENTER',
-        targetScene:    'wayne-lobby',
-        transitionType: 'archive',
-      },
-    ],
+    hotspots: [],
   },
   {
     id:          'wayne-lobby',
@@ -218,16 +155,7 @@ export const scenes: Scene[] = [
     background:  '/images/wayne-lobby.png',
     nextScene:   'wayne-sala',
     prevScene:   'wayne-exterior',
-    hotspots: [
-      {
-        id:             'access-executive',
-        area:           { top: 20, left: 20, width: 60, height: 60 },
-        label:          'EXECUTIVE FLOOR',
-        action:         'ACCESS',
-        targetScene:    'wayne-sala',
-        transitionType: 'archive',
-      },
-    ],
+    hotspots: [],
   },
   {
     id:          'wayne-sala',
@@ -249,6 +177,17 @@ export const scenes: Scene[] = [
     background:  '/images/wayne-despacho.png',
     nextScene:   null,
     prevScene:   'wayne-sala',
+    hotspots: [],
+  },
+  {
+    id:          'narrows-investigation',
+    title:       'THE NARROWS — INVESTIGATION',
+    subtitle:    'The city\'s wound runs deep here.',
+    archiveCode: 'FILE 004',
+    location:    'LOWER EAST GOTHAM — ACTIVE INVESTIGATION',
+    background:  '/images/calle-autos.png',
+    nextScene:   null,
+    prevScene:   'the-archives',
     hotspots: [],
   },
   {

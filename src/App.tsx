@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react'
+import '@/core/interaction/validateHotspots'
 import CinematicIntro from '@/components/ui/CinematicIntro'
-import RainCanvas from '@/components/ui/RainCanvas'
-import FogLayer from '@/components/ui/FogLayer'
-import LightningSystem from '@/components/atmosphere/LightningSystem'
+import FogLayer from '@/components/atmosphere/FogLayer'
+import AtmosphereLayer from '@/components/atmosphere/AtmosphereLayer'
+import WetGlassEffect from '@/components/atmosphere/WetGlassEffect'
+import ImmersionAudioBridge from '@/components/immersion/ImmersionAudioBridge'
 import { SceneProvider } from '@/core/navigation/SceneContext'
 import SceneRenderer from '@/core/scenes/SceneRenderer'
 import ArchiveTransition from '@/core/transitions/ArchiveTransition'
@@ -10,8 +12,19 @@ import CinematicCursor from '@/components/cinematic/CinematicCursor'
 import SceneHUD from '@/components/cinematic/SceneHUD'
 import { InvestigationProvider } from '@/core/investigation/InvestigationContext'
 import InvestigationHUD from '@/components/cinematic/InvestigationHUD'
-import EvidenceFoundOverlay from '@/components/cinematic/EvidenceFoundOverlay'
 import FileUnlockedOverlay from '@/components/cinematic/FileUnlockedOverlay'
+import { DetectiveProvider } from '@/core/detective/DetectiveContext'
+import DetectiveHUD from '@/components/detective/DetectiveHUD'
+import DetectiveModeLayer from '@/components/detective/DetectiveModeLayer'
+import DetectiveScanWave from '@/components/detective/DetectiveScanWave'
+import DetectiveScanAnalysisOverlay from '@/components/detective/DetectiveScanAnalysisOverlay'
+import DetectiveEvidenceOverlay from '@/components/detective/DetectiveEvidenceOverlay'
+import DetectiveMilestoneOverlay from '@/components/detective/DetectiveMilestoneOverlay'
+import DetectiveSceneTracker from '@/components/detective/DetectiveSceneTracker'
+import DetectiveNavigationBridge from '@/components/detective/DetectiveNavigationBridge'
+import NavigationHud from '@/components/navigation/NavigationHud'
+import { InteractionDebugProvider } from '@/core/interaction/InteractionDebugContext'
+import InteractionDebugHud from '@/components/interaction/InteractionDebugHud'
 
 export default function App() {
   const [loaded, setLoaded] = useState(false)
@@ -26,29 +39,39 @@ export default function App() {
 
       {loaded && (
         <SceneProvider>
+          <DetectiveProvider>
           <InvestigationProvider>
-            {/* Global atmosphere */}
-            <RainCanvas />
-            <FogLayer />
-            <LightningSystem />
+            <InteractionDebugProvider>
+              <DetectiveSceneTracker />
+              <DetectiveNavigationBridge />
+              <ImmersionAudioBridge />
 
-            {/* Scene layer */}
-            <SceneRenderer />
+              <SceneRenderer />
 
-            {/* Scene transition overlay */}
-            <ArchiveTransition />
+              <FogLayer />
+              <AtmosphereLayer />
+              <WetGlassEffect />
 
-            {/* HUD layers */}
-            <SceneHUD />
-            <InvestigationHUD />
+              <DetectiveModeLayer />
+              <ArchiveTransition />
+              <DetectiveScanWave />
+              <DetectiveScanAnalysisOverlay />
 
-            {/* Investigation overlays (above everything except cursor) */}
-            <EvidenceFoundOverlay />
-            <FileUnlockedOverlay />
+              <SceneHUD />
+              <InvestigationHUD />
+              <DetectiveHUD />
 
-            {/* Custom cursor (always topmost) */}
-            <CinematicCursor />
+              <DetectiveEvidenceOverlay />
+              <FileUnlockedOverlay />
+              <DetectiveMilestoneOverlay />
+
+              <NavigationHud />
+
+              <CinematicCursor />
+              <InteractionDebugHud />
+            </InteractionDebugProvider>
           </InvestigationProvider>
+          </DetectiveProvider>
         </SceneProvider>
       )}
     </>

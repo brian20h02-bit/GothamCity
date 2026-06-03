@@ -1,16 +1,20 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { lazy, Suspense, useMemo } from 'react'
+import { lazy, Suspense, useMemo, useCallback } from 'react'
 import { useScene } from '@/core/navigation/SceneContext'
-import Hotspot from '@/components/interactive/Hotspot'
-import SceneBackground, { type BackgroundDrift } from '@/components/cinematic/SceneBackground'
+import SceneWorld, { type BackgroundDrift } from '@/components/cinematic/SceneWorld'
+import SceneAnchoredHotspots from '@/components/cinematic/SceneAnchoredHotspots'
+import DetectiveTacticalHud from '@/components/detective/DetectiveTacticalHud'
+import { getSceneAtmosphere } from '@/data/sceneAtmosphere'
+import { Z_INDEX } from '@/config/layers'
 import type { SceneId } from '@/core/navigation/types'
 
-const sceneComponents: Record<SceneId, React.LazyExoticComponent<() => JSX.Element>> = {
+const sceneComponents: Record<SceneId, React.LazyExoticComponent<() => JSX.Element | null>> = {
   'gotham-city':               lazy(() => import('./SceneGothamCity')),
   'crime-alley':               lazy(() => import('./SceneCrimeAlley')),
   'the-incident':              lazy(() => import('./SceneTheIncident')),
   'the-archives':              lazy(() => import('./SceneTheArchives')),
   'crime-alley-investigation': lazy(() => import('./SceneCrimeAlleyInvestigation')),
+  'narrows-investigation':     lazy(() => import('./SceneNarrowsInvestigation')),
   'arkham-investigation':      lazy(() => import('./SceneArkhamInvestigation')),
   'arkham-entrada':            lazy(() => import('./SceneArkhamEntrada')),
   'arkham-fachada':            lazy(() => import('./SceneArkhamFachada')),
@@ -51,44 +55,63 @@ const BG_CONFIG: Partial<Record<SceneId, { drift: BackgroundDrift; parallax: boo
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 export default function SceneRenderer() {
-  const { currentScene, transition } = useScene()
+  const { currentScene, transition, navigateTo } = useScene()
   const SceneContent = sceneComponents[currentScene.id]
   const showBg       = !NO_BACKGROUND.includes(currentScene.id) && !!currentScene.background
   const bgCfg        = BG_CONFIG[currentScene.id] ?? { drift: 'none' as const, parallax: false }
   const isFreeze     = transition.phase === 'freeze'
 
+  const onBatcomputerAccess = useCallback(
+    () => navigateTo('batcomputer', 'batcomputer'),
+    [navigateTo],
+  )
+
   const overlayStrength = useMemo(() => {
-    if (currentScene.id.startsWith('batcomputer')) return 0.28
-    if (currentScene.id.startsWith('arkham')) return 0.38
-    if (currentScene.id.startsWith('wayne')) return 0.34
-    return 0.52
+    const base = getSceneAtmosphere(currentScene.id)
+    if (currentScene.id.startsWith('batcomputer')) return 0.22 + base.dimLevel * 0.1
+    if (currentScene.id.startsWith('wayne')) return 0.28 + base.dimLevel * 0.15
+    if (currentScene.id.startsWith('arkham')) return 0.42
+    return 0.55
   }, [currentScene.id])
 
+  const atmosphere = useMemo(
+    () => getSceneAtmosphere(currentScene.id),
+    [currentScene.id],
+  )
+
   return (
-    <div className="fixed inset-0 overflow-hidden" style={{ zIndex: 1 }}>
+    <div className="fixed inset-0 overflow-hidden" style={{ zIndex: Z_INDEX.SCENE }}>
+      <DetectiveTacticalHud />
+
       <AnimatePresence mode="wait">
         <motion.div
           key={currentScene.id}
           className="absolute inset-0"
-          initial={{ opacity: 0, scale: 1.02 }}
+          initial={{ opacity: 0, scale: 1.015 }}
           animate={{
             opacity: transition.phase === 'flash' ? 0 : 1,
-            scale:   isFreeze ? 1.04 : 1,
+            scale:   isFreeze ? 1.035 : 1,
           }}
-          exit={{ opacity: 0, scale: 0.99 }}
+          exit={{ opacity: 0, scale: 0.985 }}
           transition={{
-            opacity: { duration: 0.28, ease: EASE },
-            scale:   { duration: 0.28, ease: EASE },
+            opacity: { duration: 0.55, ease: EASE },
+            scale:   { duration: 0.65, ease: EASE },
           }}
           style={{ willChange: 'transform, opacity' }}
         >
-          {showBg && (
-            <SceneBackground
+          {showBg ? (
+            <SceneWorld
               src={currentScene.background}
               drift={bgCfg.drift}
               parallax={bgCfg.parallax}
               isZooming={isFreeze}
-            />
+              cameraDrift={atmosphere.cameraDrift}
+              parallaxStrength={atmosphere.parallaxStrength}
+            >
+              <SceneAnchoredHotspots onBatcomputerAccess={onBatcomputerAccess} />
+            </SceneWorld>
+          ) : (
+            <SceneAnchoredHotspots onBatcomputerAccess={onBatcomputerAccess} />
           )}
 
           <div
@@ -103,16 +126,10 @@ export default function SceneRenderer() {
             style={{ zIndex: 1, background: 'radial-gradient(ellipse at center, transparent 55%, rgba(5,5,5,0.28) 100%)' }}
           />
 
-          <div className="absolute inset-0" style={{ zIndex: 2 }}>
+          <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 2 }}>
             <Suspense fallback={null}>
               <SceneContent />
             </Suspense>
-          </div>
-
-          <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 3 }}>
-            {currentScene.hotspots.map(h => (
-              <Hotspot key={h.id} hotspot={h} />
-            ))}
           </div>
         </motion.div>
       </AnimatePresence>

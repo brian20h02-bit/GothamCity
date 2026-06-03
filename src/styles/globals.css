@@ -92,4 +92,15 @@ body::after {
   .text-balance {
     text-wrap: balance;
   }
+
+  .detective-scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(80, 200, 140, 0.15) 2px,
+      rgba(80, 200, 140, 0.15) 3px
+    );
+    background-size: 100% 4px;
+  }
 }

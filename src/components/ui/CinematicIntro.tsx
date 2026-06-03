@@ -1,52 +1,94 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { immersionAudio } from '@/sound/ImmersionAudioEngine'
+import { getIntroAtmosphere } from '@/data/sceneAtmosphere'
+import SceneFog from '@/components/immersion/SceneFog'
+import AtmosphericHaze from '@/components/atmosphere/AtmosphericHaze'
 
 interface CinematicIntroProps {
   onComplete: () => void
 }
 
-type Phase = 'dark' | 'title' | 'classified' | 'granted' | 'exit'
+type Phase =
+  | 'dark'
+  | 'wayne'
+  | 'network'
+  | 'accessing'
+  | 'encrypted'
+  | 'loaded'
+  | 'welcome'
+  | 'exit'
 
 const TIMINGS: Record<Phase, number> = {
-  dark:       600,
-  title:      900,
-  classified: 800,
-  granted:    900,
-  exit:       700,
+  dark:       700,
+  wayne:      900,
+  network:    700,
+  accessing:  800,
+  encrypted:  800,
+  loaded:     800,
+  welcome:    900,
+  exit:       600,
 }
 
 const EASE_CINEMA: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 const textVariants = {
-  hidden:  { opacity: 0, filter: 'blur(16px)', y: 6 },
+  hidden:  { opacity: 0, filter: 'blur(12px)', y: 8 },
   visible: { opacity: 1, filter: 'blur(0px)',  y: 0 },
-  exit:    { opacity: 0, filter: 'blur(8px)',  y: -4 },
+  exit:    { opacity: 0, filter: 'blur(6px)',  y: -4 },
 }
+
+const LINES: { phase: Phase; text: string; size?: 'lg' | 'sm' }[] = [
+  { phase: 'wayne',      text: 'WAYNE ARCHIVES',              size: 'lg' },
+  { phase: 'network',    text: 'GOTHAM CITY NETWORK',         size: 'sm' },
+  { phase: 'accessing',  text: 'ACCESSING FILES...',          size: 'sm' },
+  { phase: 'encrypted',  text: 'ENCRYPTED CONNECTION ESTABLISHED', size: 'sm' },
+  { phase: 'loaded',     text: 'CASE DATABASE LOADED',        size: 'sm' },
+  { phase: 'welcome',    text: 'WELCOME DETECTIVE',           size: 'sm' },
+]
+
+const INTRO_PROFILE = getIntroAtmosphere()
 
 export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
   const [phase, setPhase] = useState<Phase>('dark')
   const [visible, setVisible] = useState(true)
+  const [shownPhases, setShownPhases] = useState<Set<Phase>>(new Set())
 
   useEffect(() => {
-    const sequence: Phase[] = ['dark', 'title', 'classified', 'granted', 'exit']
-    let accumulated = 0
+    const startAmbience = () => {
+      immersionAudio.playIntroAmbience()
+      window.removeEventListener('pointerdown', startAmbience)
+      window.removeEventListener('keydown', startAmbience)
+    }
+    window.addEventListener('pointerdown', startAmbience, { once: true })
+    window.addEventListener('keydown', startAmbience, { once: true })
 
-    const timers = sequence.map((p) => {
-      const t = setTimeout(() => setPhase(p), accumulated)
+    const sequence: Phase[] = [
+      'dark', 'wayne', 'network', 'accessing', 'encrypted', 'loaded', 'welcome', 'exit',
+    ]
+    let accumulated = 0
+    const timers: ReturnType<typeof setTimeout>[] = []
+
+    sequence.forEach((p) => {
+      timers.push(setTimeout(() => {
+        setPhase(p)
+        if (p !== 'dark' && p !== 'exit') {
+          setShownPhases(prev => new Set([...prev, p]))
+        }
+      }, accumulated))
       accumulated += TIMINGS[p]
-      return t
     })
 
-    const exitTimer = setTimeout(() => {
+    timers.push(setTimeout(() => {
       setVisible(false)
-      setTimeout(onComplete, 800)
-    }, accumulated)
+      immersionAudio.stopIntroAmbience()
+      setTimeout(onComplete, 700)
+    }, accumulated))
 
-    return () => {
-      timers.forEach(clearTimeout)
-      clearTimeout(exitTimer)
-    }
+    return () => timers.forEach(clearTimeout)
   }, [onComplete])
+
+  const activeLines = LINES.filter(l => shownPhases.has(l.phase))
 
   return (
     <AnimatePresence>
@@ -56,106 +98,94 @@ export default function CinematicIntro({ onComplete }: CinematicIntroProps) {
           className="fixed inset-0 bg-black flex flex-col items-center justify-center overflow-hidden"
           style={{ zIndex: 10000 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: EASE_CINEMA }}
+          transition={{ duration: 0.7, ease: EASE_CINEMA }}
         >
-          {/* Sweep scanline */}
-          <motion.div
-            aria-hidden="true"
-            className="absolute left-0 right-0 h-px pointer-events-none"
-            style={{
-              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)',
-            }}
-            animate={{ top: ['0%', '100%'] }}
-            transition={{ duration: 3.8, ease: 'linear', repeat: Infinity }}
-          />
+          <div className="absolute inset-0 pointer-events-none">
+            <AtmosphericHaze level={INTRO_PROFILE.humidity} region="gotham" zIndex={1} />
+            <SceneFog
+              density={INTRO_PROFILE.fogDensity}
+              variant={INTRO_PROFILE.fogVariant}
+              region="gotham"
+              tint={INTRO_PROFILE.fogTint}
+              windAngle={INTRO_PROFILE.rainWind}
+              strength={0.85}
+              zIndex={2}
+            />
+          </div>
 
-          {/* Subtle horizontal lines */}
           <div
             aria-hidden="true"
             className="absolute inset-0 pointer-events-none"
             style={{
-              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.012) 3px, rgba(255,255,255,0.012) 4px)',
+              zIndex: 3,
+              background: 'radial-gradient(ellipse at center, transparent 30%, rgba(5,8,12,0.55) 100%)',
             }}
           />
 
-          {/* Content */}
-          <div className="relative z-10 flex flex-col items-center gap-5 px-6 text-center select-none">
+          <motion.div
+            aria-hidden="true"
+            className="absolute left-0 right-0 h-px pointer-events-none"
+            style={{ zIndex: 11, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)' }}
+            animate={{ top: ['0%', '100%'] }}
+            transition={{ duration: 4.5, ease: 'linear', repeat: Infinity }}
+          />
 
-            {/* GOTHAM ARCHIVES */}
-            <AnimatePresence mode="wait">
-              {(phase === 'title' || phase === 'classified' || phase === 'granted') && (
-                <motion.h1
-                  key="title"
-                  className="font-display text-white"
-                  style={{
-                    fontSize: 'clamp(2.5rem, 8vw, 6.5rem)',
-                    letterSpacing: '10px',
-                    lineHeight: 1,
-                  }}
-                  variants={textVariants}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ duration: 0.9, ease: EASE_CINEMA }}
-                >
-                  GOTHAM ARCHIVES
-                </motion.h1>
-              )}
-            </AnimatePresence>
-
-            {/* CLASSIFIED DATABASE */}
-            <AnimatePresence>
-              {(phase === 'classified' || phase === 'granted') && (
-                <motion.p
-                  key="classified"
-                  className="font-body text-[var(--text-secondary)]"
-                  style={{ fontSize: 'clamp(0.6rem, 1.2vw, 0.75rem)', letterSpacing: '5px' }}
-                  variants={textVariants}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ duration: 0.7, ease: EASE_CINEMA }}
-                >
-                  CLASSIFIED DATABASE
-                </motion.p>
-              )}
-            </AnimatePresence>
-
-            {/* ACCESS GRANTED */}
-            <AnimatePresence>
-              {phase === 'granted' && (
+          <div className="relative z-10 flex flex-col items-center gap-4 px-6 text-center select-none min-h-[200px]">
+            <AnimatePresence mode="popLayout">
+              {activeLines.map((line) => (
                 <motion.div
-                  key="granted"
-                  className="flex items-center gap-3"
+                  key={line.phase}
                   variants={textVariants}
                   initial="hidden"
                   animate="visible"
-                  transition={{ duration: 0.6, ease: EASE_CINEMA }}
+                  exit="exit"
+                  transition={{ duration: 0.65, ease: EASE_CINEMA }}
                 >
-                  <motion.span
-                    className="block w-1.5 h-1.5 rounded-full bg-[var(--light)]"
-                    animate={{ opacity: [1, 0.2, 1] }}
-                    transition={{ duration: 0.8, repeat: Infinity }}
-                  />
-                  <span
-                    className="font-body text-[var(--light)] font-medium"
-                    style={{ fontSize: 'clamp(0.55rem, 1vw, 0.65rem)', letterSpacing: '5px' }}
-                  >
-                    ACCESS GRANTED
-                  </span>
+                  {line.size === 'lg' ? (
+                    <h1
+                      className="font-display text-white"
+                      style={{
+                        fontSize: 'clamp(2rem, 7vw, 5.5rem)',
+                        letterSpacing: '10px',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {line.text}
+                    </h1>
+                  ) : (
+                    <p
+                      className="font-body text-[var(--text-secondary)]"
+                      style={{
+                        fontSize: 'clamp(0.55rem, 1.1vw, 0.72rem)',
+                        letterSpacing: line.phase === 'welcome' ? '6px' : '4px',
+                        color: line.phase === 'welcome' ? 'var(--light)' : undefined,
+                      }}
+                    >
+                      {line.text}
+                    </p>
+                  )}
                 </motion.div>
-              )}
+              ))}
             </AnimatePresence>
+
+            {phase !== 'dark' && phase !== 'exit' && (
+              <motion.span
+                className="mt-4 font-body text-[var(--text-muted)]"
+                style={{ fontSize: '9px', letterSpacing: '3px' }}
+                animate={{ opacity: [0.2, 0.6, 0.2] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+              >
+                ▌
+              </motion.span>
+            )}
           </div>
 
-          {/* Bottom stamp */}
-          <div
-            className="absolute bottom-8 left-0 right-0 flex justify-center"
-            aria-hidden="true"
-          >
+          <div className="absolute bottom-8 left-0 right-0 flex justify-center z-10" aria-hidden="true">
             <motion.span
               className="font-body text-[var(--text-muted)]"
               style={{ fontSize: '9px', letterSpacing: '3px' }}
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 2.5, repeat: Infinity }}
+              animate={{ opacity: [0.25, 0.5, 0.25] }}
+              transition={{ duration: 3, repeat: Infinity }}
             >
               GIN — GOTHAM INTELLIGENCE NETWORK — CLASSIFIED
             </motion.span>

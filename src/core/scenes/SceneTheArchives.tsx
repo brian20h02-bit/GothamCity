@@ -180,7 +180,7 @@ export default function SceneTheArchives() {
           })}
         </div>
 
-        {/* ── BATCOMPUTER — clickable when clearance >= 2 ──── */}
+        {/* ── BATCOMPUTER — clickable when clearance >= 5 (LEVEL V) ──── */}
         <motion.div
           className="mt-px"
           initial={{ opacity: 0 }}
@@ -190,17 +190,17 @@ export default function SceneTheArchives() {
           <motion.div
             className="relative p-5 sm:p-6 overflow-hidden"
             style={{
-              background: clearanceLevel >= 2 ? 'rgba(4, 8, 6, 0.85)' : 'rgba(8,0,0,0.6)',
-              border:     clearanceLevel >= 2 ? '1px solid rgba(30,80,55,0.4)' : '1px solid rgba(139,0,0,0.15)',
-              cursor:     clearanceLevel >= 2 ? 'none' : 'default',
+              background: clearanceLevel >= 5 ? 'rgba(4, 8, 6, 0.85)' : 'rgba(8,0,0,0.6)',
+              border:     clearanceLevel >= 5 ? '1px solid rgba(30,80,55,0.4)' : '1px solid rgba(139,0,0,0.15)',
+              cursor:     clearanceLevel >= 5 ? 'none' : 'default',
             }}
-            whileHover={clearanceLevel >= 2 ? { borderColor: 'rgba(30,80,55,0.9)', scale: 1.003 } : {}}
+            whileHover={clearanceLevel >= 5 ? { borderColor: 'rgba(30,80,55,0.9)', scale: 1.003 } : {}}
             transition={{ duration: 0.2 }}
-            onClick={clearanceLevel >= 2 ? () => navigateTo('batcomputer', 'batcomputer') : undefined}
-            onMouseEnter={clearanceLevel >= 2
+            onClick={clearanceLevel >= 5 ? () => navigateTo('batcomputer', 'batcomputer') : undefined}
+            onMouseEnter={clearanceLevel >= 5
               ? () => window.dispatchEvent(new CustomEvent('hotspot-enter', { detail: 'ACCESS' }))
               : undefined}
-            onMouseLeave={clearanceLevel >= 2
+            onMouseLeave={clearanceLevel >= 5
               ? () => window.dispatchEvent(new CustomEvent('hotspot-leave'))
               : undefined}
           >
@@ -208,13 +208,13 @@ export default function SceneTheArchives() {
             <motion.div
               aria-hidden="true"
               className="absolute inset-0 pointer-events-none"
-              style={{ border: clearanceLevel >= 2 ? '1px solid rgba(30,80,55,0.5)' : '1px solid rgba(139,0,0,0.3)' }}
+              style={{ border: clearanceLevel >= 5 ? '1px solid rgba(30,80,55,0.5)' : '1px solid rgba(139,0,0,0.3)' }}
               animate={{ opacity: [0.3, 0.9, 0.3] }}
               transition={{ duration: 3, repeat: Infinity }}
             />
 
             {/* Scan line on hover (only when accessible) */}
-            {clearanceLevel >= 2 && (
+            {clearanceLevel >= 5 && (
               <motion.div
                 aria-hidden="true"
                 className="absolute left-0 right-0 h-px pointer-events-none"
@@ -227,15 +227,15 @@ export default function SceneTheArchives() {
 
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-body mb-2" style={{ fontSize: '7px', letterSpacing: '4px', color: clearanceLevel >= 2 ? 'rgba(30,150,80,0.8)' : 'rgba(139,0,0,0.6)' }}>
-                  {clearanceLevel >= 2 ? 'CLEARANCE GRANTED — LEVEL II+' : 'CLASSIFIED SYSTEM — LEVEL V'}
+                <p className="font-body mb-2" style={{ fontSize: '7px', letterSpacing: '4px', color: clearanceLevel >= 5 ? 'rgba(30,150,80,0.8)' : 'rgba(139,0,0,0.6)' }}>
+                  {clearanceLevel >= 5 ? 'CLEARANCE GRANTED — LEVEL V' : 'CLASSIFIED SYSTEM — LEVEL V'}
                 </p>
-                <h3 className="font-display" style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', letterSpacing: '4px', color: clearanceLevel >= 2 ? 'rgba(229,229,229,0.85)' : 'rgba(229,229,229,0.5)' }}>
+                <h3 className="font-display" style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', letterSpacing: '4px', color: clearanceLevel >= 5 ? 'rgba(229,229,229,0.85)' : 'rgba(229,229,229,0.5)' }}>
                   BATCOMPUTER
                 </h3>
               </div>
               <div className="text-right flex-shrink-0">
-                {clearanceLevel >= 2 ? (
+                {clearanceLevel >= 5 ? (
                   <motion.p
                     className="font-body"
                     style={{ fontSize: '8px', letterSpacing: '3px', color: 'rgba(30,200,100,0.8)' }}
@@ -262,12 +262,12 @@ export default function SceneTheArchives() {
               </div>
             </div>
 
-            <div className="mt-3" style={{ height: '1px', background: clearanceLevel >= 2 ? 'rgba(30,80,55,0.3)' : 'rgba(139,0,0,0.12)' }} />
+            <div className="mt-3" style={{ height: '1px', background: clearanceLevel >= 5 ? 'rgba(30,80,55,0.3)' : 'rgba(139,0,0,0.12)' }} />
 
-            <p className="font-body mt-3" style={{ fontSize: '0.65rem', letterSpacing: '1.5px', color: clearanceLevel >= 2 ? 'rgba(229,229,229,0.4)' : 'rgba(229,229,229,0.2)', lineHeight: 1.8 }}>
-              {clearanceLevel >= 2
+            <p className="font-body mt-3" style={{ fontSize: '0.65rem', letterSpacing: '1.5px', color: clearanceLevel >= 5 ? 'rgba(229,229,229,0.4)' : 'rgba(229,229,229,0.2)', lineHeight: 1.8 }}>
+              {clearanceLevel >= 5
                 ? 'Wayne Network online. Central intelligence system active. Click to access the secure hub.'
-                : 'Central intelligence system. Access requires completion of all active investigations. Data classified under executive authority.'}
+                : 'Central intelligence system. Complete all five investigation files to reach LEVEL V clearance.'}
             </p>
           </motion.div>
         </motion.div>

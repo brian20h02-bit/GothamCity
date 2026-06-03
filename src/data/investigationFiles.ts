@@ -6,7 +6,7 @@ export interface InvestigationFile {
   title:             string
   location:          string
   clearanceRequired: number   // 1–5
-  evidenceRequired:  number   // evidence found in scene needed to unlock next
+  evidenceRequired:  number   // evidence found in case needed to unlock next
   sceneId:           string | null
   description:       string
   unlocksFileId:     string | null  // which file to unlock on completion
@@ -53,8 +53,19 @@ export const investigationFiles: InvestigationFile[] = [
     location:          'LOWER EAST GOTHAM',
     clearanceRequired: 4,
     evidenceRequired:  5,
-    sceneId:           null,
-    description:       'Classified. Level IV clearance required.',
+    sceneId:           'narrows-investigation',
+    description:       'Mass hallucination event. Infrastructure sabotage. Records sealed.',
+    unlocksFileId:     'batcomputer-inv',
+  },
+  {
+    id:                'batcomputer-inv',
+    caseNumber:        'FILE 005',
+    title:             'BATCOMPUTER',
+    location:          'WAYNE NETWORK — SECURE HUB',
+    clearanceRequired: 5,
+    evidenceRequired:  7,
+    sceneId:           'batcomputer',
+    description:       'Central intelligence system. Full Gotham grid access. Executive authority only.',
     unlocksFileId:     null,
   },
 ]
