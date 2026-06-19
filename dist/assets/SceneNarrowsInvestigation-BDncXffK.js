@@ -1,1 +1,0 @@
-import{j as e}from"./index-BrJ9TiDH.js";function a(){return e.jsx("div",{className:"absolute inset-0 pointer-events-none",children:e.jsx("div",{"aria-hidden":"true",className:"absolute inset-y-0 right-0 w-2/5",style:{background:"radial-gradient(ellipse at right center, rgba(139,0,0,0.1) 0%, transparent 70%)"}})})}export{a as default};

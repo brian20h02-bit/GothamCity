@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Production build (Vercel runs `npm run build`)
+dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Vite
+*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Test / coverage
+coverage/
+
+# Misc local files (keep out of repo)
+*.pdf
+
+# Legacy asset folder (use public/images/ instead)
+Images/
